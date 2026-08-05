@@ -148,35 +148,55 @@ if st.button("💰 Maliyeti Hesapla"):
     st.success(f"📄 Teklif kaydedildi: {teklif_no}")
 
     # PDF Üretimi
+   # PDF Üretimi (Unicode / Türkçe Karakter Güvenli)
     pdf = FPDF()
     pdf.add_page()
     
+    # DejaVuSans fontu varsa yükle, yoksa latin-1 dönüşümlü varsayılan font kullan
+    has_unicode_font = False
     if os.path.exists("DejaVuSans.ttf"):
-        pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVu', '', 'DejaVuSans.ttf')
         if os.path.exists("DejaVuSans-Bold.ttf"):
-            pdf.add_font('DejaVu', 'B', 'DejaVuSans-Bold.ttf', uni=True)
+            pdf.add_font('DejaVu', 'B', 'DejaVuSans-Bold.ttf')
         pdf.set_font("DejaVu", size=12)
+        has_unicode_font = True
+    elif os.path.exists("ttf/DejaVuSans.ttf"):
+        pdf.add_font('DejaVu', '', 'ttf/DejaVuSans.ttf')
+        if os.path.exists("ttf/DejaVuSans-Bold.ttf"):
+            pdf.add_font('DejaVu', 'B', 'ttf/DejaVuSans-Bold.ttf')
+        pdf.set_font("DejaVu", size=12)
+        has_unicode_font = True
     else:
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Helvetica", size=12)
+
+    def clean_txt(text):
+        if has_unicode_font:
+            return str(text)
+        # Unicode font yoksa Türkçe karakterleri latin-1 uyumlu harflere çevirir
+        tr_map = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+        return str(text).translate(tr_map)
 
     if os.path.exists("pusulabasim_logo.png"):
         pdf.image("pusulabasim_logo.png", x=160, y=8, w=35)
 
     pdf.ln(20)
-    pdf.cell(0, 10, txt="TEKLİF FORMU", ln=True, align="C")
+    pdf.cell(0, 10, txt=clean_txt("TEKLİF FORMU"), new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
-    pdf.cell(0, 10, txt=f"Teklif No: {teklif_no}", ln=True)
-    pdf.cell(0, 10, txt=f"Tarih: {teklif_kaydi['Tarih']}", ln=True)
-    pdf.cell(0, 10, txt=f"Firma: {company_name}", ln=True)
-    pdf.cell(0, 10, txt=f"İlgili Kişi: {customer_name}", ln=True)
+    pdf.cell(0, 10, txt=clean_txt(f"Teklif No: {teklif_no}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"Tarih: {teklif_kaydi['Tarih']}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"Firma: {company_name}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"İlgili Kişi: {customer_name}"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
-    pdf.cell(0, 10, txt=f"Miktar: {qty} adet", ln=True)
-    pdf.cell(0, 10, txt=f"Ebat: {E}x{Y}x{K} cm", ln=True)
-    pdf.cell(0, 10, txt=f"Baskı Türü: {print_type} / Renk: {colors}", ln=True)
-    pdf.cell(0, 10, txt=f"Birim Fiyat: ₺{round(birim_fiyat,4)}", ln=True)
+    pdf.cell(0, 10, txt=clean_txt(f"Miktar: {qty} adet"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"Ebat: {E}x{Y}x{K} cm"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"Baskı Türü: {print_type} / Renk: {colors}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, txt=clean_txt(f"Birim Fiyat: TL {round(birim_fiyat,4)}"), new_x="LMARGIN", new_y="NEXT")
 
     pdf_path = f"{teklif_no}.pdf"
     pdf.output(pdf_path)
+
+    with open(pdf_path, "rb") as f:
+        st.download_button("📥 PDF Teklifi İndir", f, file_name=pdf_path)
 
     with open(pdf_path, "rb") as f:
         st.download_button("📥 PDF Teklifi İndir", f, file_name=pdf_path)
