@@ -192,11 +192,12 @@ if st.button("💰 Maliyeti Hesapla"):
     pdf.cell(0, 10, txt=clean_txt(f"Baskı Türü: {print_type} / Renk: {colors}"), new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 10, txt=clean_txt(f"Birim Fiyat: TL {round(birim_fiyat,4)}"), new_x="LMARGIN", new_y="NEXT")
 
-    pdf_path = f"{teklif_no}.pdf"
-    pdf.output(pdf_path)
 
-    with open(pdf_path, "rb") as f:
-        st.download_button("📥 PDF Teklifi İndir", f, file_name=pdf_path)
-
-    with open(pdf_path, "rb") as f:
-        st.download_button("📥 PDF Teklifi İndir", f, file_name=pdf_path)
+   with open(pdf_path, "rb") as f:
+        st.download_button(
+            label="📥 PDF Teklifi İndir",
+            data=f,
+            file_name=pdf_path,
+            mime="application/pdf",
+            key=f"dl_btn_{teklif_no}"  # Benzersiz key eklendi
+        )
