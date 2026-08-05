@@ -9,7 +9,7 @@ from fpdf import FPDF
 from hesap_motoru import toplam_maliyet
 
 # 1. Sayfa Yapılandırması
-st.set_page_config(page_title="Çanta Maliyet Hesaplayıcı", layout="centered")
+st.set_page_config(page_title="Çanta Maliyet Hesaplayıcı - Satış Paneli", layout="centered", page_icon="🧮")
 
 # 2. Sol Paneli ve Yan Menüyü Satış Ekibinden Tamamen Gizleyen CSS
 st.markdown(
@@ -21,6 +21,32 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# 3. ŞİFRE KORUMA SİSTEMİ
+SATIS_SIFRESI = "Pusula2026!"  # Satış ekibine vereceğiniz giriş şifresi
+
+if "satis_authenticated" not in st.session_state:
+    st.session_state["satis_authenticated"] = False
+
+if not st.session_state["satis_authenticated"]:
+    if os.path.exists("pusulabasim_logo.png"):
+        st.image("pusulabasim_logo.png", width=200)
+    
+    st.title("🔒 Satış Ekibi Portalı")
+    st.caption("Pusula Basım Teklif ve Maliyet Hesaplama Sistemi")
+    
+    girilen_sifre = st.text_input("Lütfen Erişim Şifresini Giriniz:", type="password")
+    
+    if st.button("🔑 Giriş Yap", type="primary"):
+        if girilen_sifre == SATIS_SIFRESI:
+            st.session_state["satis_authenticated"] = True
+            st.rerun()
+        else:
+            st.error("❌ Hatalı şifre! Lütfen tekrar deneyiniz.")
+    
+    st.stop()  # Şifre doğru girilmediği sürece altındaki kodlar çalışmaz
+
+# --- ŞİFRE DOĞRU İSE AŞAĞIDAKİ HESAPLAYICI EKRANI AÇILIR ---
 
 def load_config():
     config_file = "ayarlar.json"
@@ -155,7 +181,7 @@ if st.button("💰 Maliyeti Hesapla"):
 
     st.success(f"📄 Teklif kaydedildi: {teklif_no}")
 
-    # PDF Üretimi (Unicode / Türkçe Karakter Güvenli)
+    # PDF Üretimi
     pdf = FPDF()
     pdf.add_page()
     
@@ -197,7 +223,6 @@ if st.button("💰 Maliyeti Hesapla"):
     pdf.cell(0, 10, txt=clean_txt(f"Baskı Türü: {print_type} / Renk: {colors}"), new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 10, txt=clean_txt(f"Birim Fiyat: TL {round(birim_fiyat,4)}"), new_x="LMARGIN", new_y="NEXT")
 
-    # PDF Dosyasını Kaydetme ve İndirme
     pdf_path = f"{teklif_no}.pdf"
     pdf.output(pdf_path)
 
