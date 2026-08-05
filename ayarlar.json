@@ -1,0 +1,23 @@
+{
+    "fabric_usd_kg": 2.5,
+    "bopp_usd_kg_12": 4.0,
+    "bopp_usd_kg_20": 3.5,
+    "metal_bopp_usd_kg": 4.0,
+    "sap_usd_kg": 2.7,
+    "labor_usd_piece": 0.056,
+    "box_usd_piece": 0.006,
+    "lam_outer_usd_m2": 0.06,
+    "lam_inner_usd_m2": 0.06,
+    "flexo_setup_usd": 400.0,
+    "flexo_usd_kg": 2.0,
+    "rotogravure_setup_usd": 900.0,
+    "rotogravure_usd_kg": 3.4,
+    "plate_cost_eur_cm2": 0.015,
+    "usd_to_try": 45.5,
+    "eur_to_try": 55.0,
+    "tier1_max_qty": 40000,
+    "tier2_max_qty": 200000,
+    "tier1_margin_pct": 10.0,
+    "tier2_margin_pct": 8.0,
+    "tier3_margin_pct": 5.0
+}
